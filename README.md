@@ -1,13 +1,13 @@
 # barcode_reader_opencv
 This is an implementation of the algorithm described in the paper "Robust Recognition of 1-D Barcodes Using Camera Phones Steffen Wachenfeld, Sebastian Terlunen, Xiaoyi Jiang Computer Vision and Pattern Recognition Group, Department of Computer Science, University of Munster, Germany"
 
-This uses gdi plus libraries for the initial processing of the input jpg files.
+This uses opencv libraries for the initial processing of the input jpg files.
 
-To compile, you will have to include opencv 450 c++ libraries
+To compile, you will have to include opencv 450 c++ libraries. 
 
 to run
 
-./barcode.exe barcode1.jpg false
+barcode "path/to/jpeg/image" "true"
 
 the first parameter is the file path of the jpeg image and the second parameter turns debug output on or off
 
