@@ -5,86 +5,151 @@
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
+/**
+to compile ,run
+g++ -mwindows main.cpp -lgdiplus -o barcode
+ro run
+ ./barcode.exe C:\\Users\\Gerard\\Desktop\\business\\barcodes\\barcode10_mbdb.jpg false
 
+*/
 
-
+#include <windows.h>
+#include <gdiplus.h>
 #include <stdio.h>
-
+#include <wchar.h>
 
 #include <string>
 #include <iostream>
 #include <time.h>
 #include <exception>
-#include <opencv2/highgui/highgui.hpp>
-#include<opencv2/opencv.hpp>
-
 #include <stdio.h>
 #include <math.h>
 #include <vector>
 #include <algorithm>
 #include <list>
-
+#pragma comment (lib,"Gdiplus.lib")
 using namespace std;
+using namespace Gdiplus;
 
-using namespace cv;
+
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+   UINT  num = 0;          // number of image encoders
+   UINT  size = 0;         // size of the image encoder array in bytes
+
+   ImageCodecInfo* pImageCodecInfo = NULL;
+
+   GetImageEncodersSize(&num, &size);
+   if(size == 0)
+      return -1;  // Failure
+
+   pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+   if(pImageCodecInfo == NULL)
+      return -1;  // Failure
+
+   GetImageEncoders(num, size, pImageCodecInfo);
+
+   for(UINT j = 0; j < num; ++j)
+   {
+      if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+      {
+         *pClsid = pImageCodecInfo[j].Clsid;
+         free(pImageCodecInfo);
+         return j;  // Success
+      }
+   }
+
+   free(pImageCodecInfo);
+   return -1;  // Failure
+}
+
+
 
 
 vector<long double> getScanline(string file_name,bool print)
 {
 	 vector<long double> scanline;
 
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+    CLSID   encoderClsid;
+    Status  stat;
+    wstring str1(file_name.begin(), file_name.end());
+    Image*   image = new Image(str1.c_str());
+
+    std::string delimiter = ".";
+    std::string token = file_name.substr(0, file_name.find(delimiter));
+    std::string new_file_name=token+".bmp";
+    wstring str2(new_file_name.begin(), new_file_name.end());
 
 
-	 	 	 	 cv::Mat img;
-				  img= cv::imread(file_name, IMREAD_COLOR);
-				  cv::resize(img,img,Size(600, 400), cv::INTER_LINEAR);
+    // Get the CLSID of the PNG encoder.
+    GetEncoderClsid(L"image/bmp", &encoderClsid);
+
+    stat = image->Save(str2.c_str(), &encoderClsid, NULL);
+
+    Bitmap*    bmp = new Bitmap(str2.c_str() );
 
 
 
 
+    int            w, h;
+    w = bmp->GetWidth();
+    h = bmp->GetHeight();
 
+    float horizontalScalingFactor = 600.0 / (float)w;
+    float verticalScalingFactor = 400.0 / (float)h;
+    Bitmap* img = new Bitmap((int)600, (int)400);
+    Graphics* g = new Graphics(img);
 
+    g->ScaleTransform(horizontalScalingFactor, verticalScalingFactor);
 
+    g->DrawImage(bmp, 0, 0);
 
+    for( int x=0; x<600; x++ )
+    {
+            Color c;
+            img->GetPixel( x, 400/2,&c );
 
+             double red = c.GetRed();
+             double green = c.GetGreen();
+             double blue = c.GetBlue();
 
+              //Y (x) = 0.299R(x) + 0.587G(x) + 0.114B(x)
+             double intensity=(red*(0.299)+green*(0.587)+blue*(0.114))/255;
 
-				      for( int j = 0; j < img.cols; j++)
-				      {
-				    	  cv::Vec3b bgrPixel = img.at<cv::Vec3b>(round((img.rows)/2), j);
-				    	//BGR not RGB.
-				    	  long double blue = bgrPixel[0];
-				    	  long double green = bgrPixel[1];
-				    	  long double red = bgrPixel[2];
-				          //Y (x) = 0.299R(x) + 0.587G(x) + 0.114B(x)
-				    	  long double intensity=(red*(0.299)+green*(0.587)+blue*(0.114))/255;
-				          scanline.push_back(intensity);
-				          if(print)
-				          {
-				          if(j>=0)
-				          {
-				          printf("(%i  %Lf) ",j,intensity);
-				          }
-				          }
+             scanline.push_back(intensity);
 
-				      }
+    }
+    if(print)
+    {
+        if(stat == Ok)
+        printf("bmp was saved successfully\n");
+        else
+        printf("Failure: stat = %d\n", stat);
+    }
 
+   delete image;
+   GdiplusShutdown(gdiplusToken);
 
-				      double sum=0;
-				      int counter=0;;
-				      double average=0.0;
-				      for(unsigned int i=0;i<scanline.size();i++)
-				      {
+   double sum=0;
+   int counter=0;;
+   double average=0.0;
+   for(unsigned int i=0;i<scanline.size();i++)
+   {
 
-				    	  if(scanline[i]>0.5)
-				    	  {
-				    		  sum=sum+scanline[i];
-				    		  counter++;
-				    	  }
-				      }
-				      average=sum/counter;
-				      for(unsigned int i=0;i<scanline.size();i++)
-				      {
+   	  if(scanline[i]>0.5)
+  	  {
+   		  sum=sum+scanline[i];
+  		  counter++;
+  	  }
+   }
+   average=sum/counter;
+   for(unsigned int i=0;i<scanline.size();i++)
+   {
 				    	  if(scanline[i]>0.5)
 				    	  {
 				    	  scanline[i]=scanline[i]+(1-average);
@@ -93,13 +158,13 @@ vector<long double> getScanline(string file_name,bool print)
 				    	  {
 				    		  scanline[i]=1.0;
 				    	  }
-				      }
+    }
 
-				      if(print)
-				      {
-				      printf("\nscanline length %llu",scanline.size());
-				      }
-				      return scanline;
+    if(print)
+    {
+        printf("\nscanline length %llu",scanline.size());
+	}
+	return scanline;
 
 
 }
@@ -128,7 +193,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 		 {
 
 			 diff=diff + scanline[i] -scanline[i+1];
-			// printf("\n %f",scanline[i] -scanline[i+1]);
+
 			 if(abs(diff)>=intensityDiff )
 			 {
 
@@ -1300,13 +1365,15 @@ void barcode(long double st,vector<vector<int>> bars,long double avbl1,long doub
 	       finalBarCode.insert(finalBarCode.begin() , mNumber);
 
 
-	       printf("\nfinal Bar Code method 1  ");
+	       printf("\nfinal Bar Code   ");
 	       for(unsigned int i=0;i<13;i++)
 	        {
 	    	   printf(" %d ",finalBarCode[i]);
 	        }
 
 	    	printf(checkSum(finalBarCode) ? "true" : "false");
+
+
 
 
 
@@ -1323,7 +1390,12 @@ void barcode(long double st,vector<vector<int>> bars,long double avbl1,long doub
 
 int main(int argc, char *argv[])
 {
-string file_name=argv[1];
+
+
+
+
+
+	string file_name=argv[1];
 
 	bool debug=false;
     if(strcmp(argv[2],"true")==0)
