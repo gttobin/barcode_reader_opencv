@@ -1,7 +1,7 @@
 # barcode_reader_opencv
 This is an implementation of the algorithm described in the paper "Robust Recognition of 1-D Barcodes Using Camera Phones Steffen Wachenfeld, Sebastian Terlunen, Xiaoyi Jiang Computer Vision and Pattern Recognition Group, Department of Computer Science, University of Munster, Germany"
 
-This uses opencv libraries for the initial processing of the input jpg files.
+This uses opencv libraries for the initial processing of the input jpg files. Please note that the sample jpeg images have been cropped.
 
 To compile, you will have to include opencv 450 c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. To compile
 
