@@ -3,11 +3,13 @@ This is an implementation of the algorithm described in the paper "Robust Recogn
 
 This uses opencv libraries for the initial processing of the input jpg files.
 
-To compile, you will have to include opencv 450 c++ libraries. 
+To compile, you will have to include opencv 450 c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. To compile
+
+g++ main.cpp -o main  `pkg-config --cflags --libs opencv`
 
 to run
 
-barcode "path/to/jpeg/image" "true"
+./main barcode1_mbdb.jpg true
 
 the first parameter is the file path of the jpeg image and the second parameter turns debug output on or off
 
