@@ -15,6 +15,9 @@ the first parameter is the file path of the jpeg image and the second parameter 
 
 Ten sample images have been uploaded, of which all except number nine are correctly read.
 
+If you are using Windows 10 or later, you can make use of the Windows Subsystem Linux to install various flavours of virtual Linux machines to compile and run
+the code.
+
 vector<long double> getScanline(string file_name,bool print)
 
 This takes the a JPEG file path, converts the JPEG to a BMP file of size 600 x 400 pixels and extracts the RGB data matrix.
