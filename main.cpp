@@ -79,23 +79,27 @@ vector<long double> getScanline(string file_name,bool print)
 
 				      double sum=0;
 				      int counter=0;;
-				      double average=0.0;
+				      long double average=0.0;
 				      for(unsigned int i=0;i<scanline.size();i++)
 				      {
 
-				    	  if(scanline[i]>0.5)
-				    	  {
+				    	 // if(scanline[i]>0.5)
+				    	  //{
 				    		  sum=sum+scanline[i];
 				    		  counter++;
-				    	  }
+				    	  //}
 				      }
 				      average=sum/counter;
 				      for(unsigned int i=0;i<scanline.size();i++)
 				      {
-				    	  if(scanline[i]>0.5)
+				    	  if(scanline[i]>average)
 				    	  {
-				    	  scanline[i]=scanline[i]+(1-average);
+				    	  scanline[i]=1.0;
 				    	  }
+				    	  else
+                          {
+                          scanline[i]=0.0;
+                          }
 				    	  if(scanline[i]>1.0)
 				    	  {
 				    		  scanline[i]=1.0;
@@ -330,7 +334,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 		{
 		printf("\naverage points expanded ");
 		}
-		for(unsigned  int i=0;i<(averagePoints.size());i++)
+		for(unsigned  int i=0;i<averagePoints.size()-1;i++)
 		{
 
 
@@ -1374,7 +1378,7 @@ string file_name=argv[1];
         debug=true;
     }
 
-  // string file_name="C:\\codeblocks\\barcodeLocalisationAlgorithm\\imgs\\cropped.bmp";
+
   //  string file_name="C:\\Users\\Gerard\\Desktop\\business\\barcodes\\barcode10_mbdb.jpg";
 	 vector<long double> scanline=getScanline(file_name,debug);
 
