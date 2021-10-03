@@ -3,7 +3,7 @@
 // Author      : Gerard Tobin
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description :
 //============================================================================
 
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <time.h>
 #include <exception>
-#include <opencv2/highgui/highgui.hpp>
+
 #include<opencv2/opencv.hpp>
 
 #include <stdio.h>
@@ -26,7 +26,7 @@
 
 using namespace std;
 
-using namespace cv;
+
 
 
 vector<long double> getScanline(string file_name,bool print)
@@ -36,8 +36,8 @@ vector<long double> getScanline(string file_name,bool print)
 
 
 	 	 	 	 cv::Mat img;
-				  img= cv::imread(file_name, IMREAD_COLOR);
-				  cv::resize(img,img,Size(600, 400), cv::INTER_LINEAR);
+				  img= imread(file_name, cv::IMREAD_COLOR);
+				  resize(img,img,cv::Size(600, 400), cv::INTER_LINEAR);
 
 
 
@@ -47,24 +47,31 @@ vector<long double> getScanline(string file_name,bool print)
 
 
 
+                      if(print)
+			          {
+			              printf("\nscanline");
+
+
+
+			          }
 
 
 				      for( int j = 0; j < img.cols; j++)
 				      {
-				    	  cv::Vec3b bgrPixel = img.at<cv::Vec3b>(round((img.rows)/2), j);
+				    	  cv::Vec3b bgrPixel = img.at<cv::Vec3b>(img.rows/2, j);
 				    	//BGR not RGB.
-				    	  long double blue = bgrPixel[0];
-				    	  long double green = bgrPixel[1];
-				    	  long double red = bgrPixel[2];
+				    	  //long double blue = bgrPixel[0];
+				    	  //long double green = bgrPixel[1];
+				    	  //long double red = bgrPixel[2];
 				          //Y (x) = 0.299R(x) + 0.587G(x) + 0.114B(x)
-				    	  long double intensity=(red*(0.299)+green*(0.587)+blue*(0.114))/255;
+				    	  long double intensity=(bgrPixel[2]*0.299+bgrPixel[1]*0.587+bgrPixel[0]*0.114)/255.0;
 				          scanline.push_back(intensity);
 				          if(print)
 				          {
-				          if(j>=0)
-				          {
-				          printf("(%i  %Lf) ",j,intensity);
-				          }
+				              printf("\n( %d , %f )",j,(double)intensity);
+
+
+
 				          }
 
 				      }
@@ -94,9 +101,40 @@ vector<long double> getScanline(string file_name,bool print)
 				    		  scanline[i]=1.0;
 				    	  }
 				      }
+				      int index_of_first_black_pixel=0;
+				      int index_of_last_black_pixel=599;
+
+				      for( int j = scanline.size()-1; j >= 0; j--)
+				      {
+                            if(scanline[j]<0.5)
+                            {
+
+                                index_of_last_black_pixel=j;
+                                break;
+                            }
+				      }
+		     	      scanline.erase( scanline.begin()+index_of_last_black_pixel+1, scanline.end()  );
+
+                      for( int j = 0; j < scanline.size(); j++)
+				      {
+                            if(scanline[j]<0.5)
+                            {
+                                index_of_first_black_pixel=j;
+
+
+                                break;
+                            }
+				      }
+                     scanline.erase( scanline.begin(), scanline.begin() + index_of_first_black_pixel-1);
+
+
+
 
 				      if(print)
 				      {
+                      printf("\nindex_of_first_black_pixel %d",index_of_first_black_pixel);
+
+                      printf("\nindex_of_last_black_pixel %d",index_of_last_black_pixel);
 				      printf("\nscanline length %llu",scanline.size());
 				      }
 				      return scanline;
@@ -110,7 +148,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 
 		 long double  intensityDiff =iDiff;
 
-		 long double diff=0;
+		 long double diff=0.0;
 
 		 struct  points_struct
 		 {
@@ -137,7 +175,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 				 temp.intensity=scanline[i+1];
 				 if(print)
 				 {
-				 printf("( %i   %Lf)",temp.point,	temp.intensity);
+				 printf("\n( %i,%f)",temp.point,	(double)temp.intensity);
 				 }
 				 points.push_back(temp);
 				 diff=0;
@@ -157,7 +195,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 		 vector<binarizedPoints_struct> binarizedPoints;
 		 if(print)
 		 {
-		 printf("\nbinarizedpoints 1\n");
+		 printf("\nbinarizedpoints");
 		 }
 		 for(unsigned  int i=0;i<points.size();i++)
 		 {
@@ -175,7 +213,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 			 		binarizedPoints.push_back(temp1);
 			 		 if(print)
 			 		 {
-			 		  printf(" (%d  %Lf) ",temp1.point,temp1.intensity);
+			 		  printf("\n white (%d  %f) ",temp1.point,(double)temp1.intensity);
 			 		 }
 			 	}
 			 	else
@@ -186,14 +224,14 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 			 		binarizedPoints.push_back(temp1);
 			 		 if(print)
 			 		 {
-			 		  printf(" (%d  %Lf) ",temp1.point,temp1.intensity);
+			 		  printf("\n black (%d  %f) ",temp1.point,(double)temp1.intensity);
 			 		 }
 			 	}
 		 }
 		 if(print)
 		 {
-		 printf("\nbinarizedPoints 1 length %llu",binarizedPoints.size());
-		 printf("\nbinarizedPoints 2");
+		 printf("\nbinarizedPoints  length %llu",binarizedPoints.size());
+		 printf("\nbinarizedPoints condensed");
 		 }
 		 for(unsigned  int i=0;i<binarizedPoints.size()-1;i++)
 		 {
@@ -204,14 +242,16 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 			 {
 				 binarizedPoints.erase(binarizedPoints.begin()+i);i--;
 			 }
-			 if(print)
-			{
-			 printf(" (%d %Lf)",binarizedPoints[i].point,binarizedPoints[i].intensity);
-			}
+
 		 }
 		 if(print)
 		 {
-		 printf("\nbinarizedPoints length 2 %llu",binarizedPoints.size());
+		      for(unsigned  int i=0;i<binarizedPoints.size()-1;i++)
+              {
+                  const char * st= binarizedPoints[i].blackOrWhite ? "white" : "black";
+			      printf("\n%s (%d %f )",st,binarizedPoints[i].point,(double)binarizedPoints[i].intensity);
+              }
+		 printf("\nbinarizedPoints length condensed %llu",binarizedPoints.size());
 		 }
 		 struct averagePoints_struct
 		 {
@@ -246,7 +286,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 
 	    if(print)
 	   	{
-	    printf("\naveragePoints \n");
+	    printf("\naveragePoints");
 	   	}
 	    for(unsigned  int i=binarizedPoints.size();i>=round(binarizedPoints.size()/2)-7;i--)
 		{
@@ -278,7 +318,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 	     {
 		for(unsigned  int i=0;i<averagePoints.size();i++)
 		{
-			printf(" (%d, %Lf )",averagePoints[i].point, averagePoints[i].intensity);
+			printf("\n(%d, %f )",averagePoints[i].point, (double)averagePoints[i].intensity);
 		}
 
 
@@ -288,7 +328,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 
 		if(print)
 		{
-		printf("\naverage points extended 1 \n");
+		printf("\naverage points expanded ");
 		}
 		for(unsigned  int i=0;i<(averagePoints.size());i++)
 		{
@@ -303,15 +343,15 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 				averagePointsExpanded.push_back(temp2);
 				 if(print)
 				 {
-				 printf("(%d, %Lf) ",temp2.point,averagePoints[i].intensity);
+				 printf("\n(%d, %f) ",temp2.point,(double)averagePoints[i].intensity);
 				 }
 			}
 
 		}
 		 if(print)
 		 {
-			 printf("\naverage points extended 1 length %llu\n",averagePointsExpanded.size());
-			 printf("\naverage points extended 2");
+			 printf("\naverage points expanded length %llu\n",averagePointsExpanded.size());
+			 printf("\naverage points expanded 2");
 		 }
 		for(  int i=0;i<=averagePoints[0].point;i++)
 			{
@@ -321,17 +361,17 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 				averagePointsExpanded.insert(averagePointsExpanded.begin(),temp);
 				 if(print)
 				{
-					 printf(" (%d %Lf) ",temp.point,averagePoints[0].intensity);
+					 printf("\n(%d %f) ",temp.point,(double)averagePoints[0].intensity);
 				}
 			}
 		 if(print)
 		 {
-			 printf("\naverage points extended 2 length %llu\n",averagePointsExpanded.size());
+			 printf("\naverage points expanded 2 length %llu\n",averagePointsExpanded.size());
 		 }
 
 		 if(print)
 		 {
-		printf("\naverage points extended 3");
+		printf("\naverage points expanded 3");
 		 }
 			for(unsigned int i=averagePoints[averagePoints.size()-1].point+1;i<scanline.size();i++)
 		    {
@@ -347,12 +387,12 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 			{
 			for(unsigned  int i=0;i<averagePointsExpanded.size();i++)
 			{
-				printf(" (%d %Lf) ",averagePointsExpanded[i].point,averagePointsExpanded[i].intensity);
+				printf("\n(%d %f) ",averagePointsExpanded[i].point,(double)averagePointsExpanded[i].intensity);
 
 			}
 			printf("\naveragePointsExpanded 3 length %llu",averagePointsExpanded.size());
 
-		 printf("\n binarizedPoints2 ");
+		 printf("\n binarizedPoints 2 ");
 			}
 	    vector<int> binarizedPoints2;
 	    for(unsigned  int i=0;i<averagePointsExpanded.size();i++)
@@ -371,9 +411,9 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 	   	{
 	    for(unsigned  int i=0;i<binarizedPoints2.size();i++)
 	    {
-	    	printf("( %d %d )",i,binarizedPoints2[i]);
+	    	printf("\n(%d,%d)",i,binarizedPoints2[i]);
 	    }
-	    printf("\n binarizedPoints2 length %llu\n",binarizedPoints2.size());
+	    printf("\n binarizedPoints2 length %llu",binarizedPoints2.size());
 	   	}
 	    vector<vector<int>> bars;
 	    int l=binarizedPoints2.size();
@@ -435,7 +475,7 @@ vector<vector<int>> bars(vector<long double> scanline,long double iDiff,bool pri
 	    }
 	    if(print)
 	   	{
-	    printf("\n bars length 1 %llu",bars.size());
+	    printf("\nnumber of  bars   %llu",bars.size());
 	   	}
 	  for(unsigned  int i=l;i>0;i--)
 	  {
@@ -1323,13 +1363,19 @@ void barcode(long double st,vector<vector<int>> bars,long double avbl1,long doub
 
 int main(int argc, char *argv[])
 {
+    bool debug=false;
+
 string file_name=argv[1];
 
-	bool debug=false;
+
+
     if(strcmp(argv[2],"true")==0)
     {
         debug=true;
     }
+
+  // string file_name="C:\\codeblocks\\barcodeLocalisationAlgorithm\\imgs\\cropped.bmp";
+  //  string file_name="C:\\Users\\Gerard\\Desktop\\business\\barcodes\\barcode10_mbdb.jpg";
 	 vector<long double> scanline=getScanline(file_name,debug);
 
 
