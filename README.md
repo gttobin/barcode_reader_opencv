@@ -3,7 +3,17 @@ This is an implementation of the algorithm described in the paper "Robust Recogn
 
 This uses opencv libraries for the initial processing of the input jpg files. Please note that the sample jpeg images have been cropped.
 
-To compile, you will have to include opencv 450 c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. To compile
+To compile, you will have to include opencv 450 c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. For example on Open Suse
+
+Install WSL:Opensuse Leap  from Microsoft Store
+
+sudo zypper install opencv-devel
+
+to compile
+g++ -g main.cpp   -lopencv_core      -lopencv_imgproc -lopencv_imgcodecs -lpthread -o main
+
+
+To compile
 
 g++ main.cpp -o main  `pkg-config --cflags --libs opencv`
 
