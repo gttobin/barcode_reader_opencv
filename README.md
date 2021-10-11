@@ -3,9 +3,7 @@ This is an implementation of the algorithm described in the paper "Robust Recogn
 
 This uses opencv libraries for the initial processing of the input jpg files. Please note that the sample jpeg images have been cropped.
 
-To compile, you will have to include opencv c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. For example on Open Suse
-
-Install WSL:Opensuse Leap  from Microsoft Store
+To compile, you will have to include opencv c++ libraries. Most Linux and UNIX OS's will have a package manager from which opencv libraries can be installed with a single command. For example on Open Suse (I used WSL,Opensuse Leap  from Microsoft Store on Windows 10)
 
 sudo zypper install opencv
 
@@ -20,7 +18,7 @@ to run
 
 the first parameter is the file path of the jpeg image and the second parameter turns debug output on or off
 
-Ten sample images have been uploaded, of which all except number eight are correctly read.
+Ten sample images have been uploaded, of which all are correctly read.
 
 If you are using Windows 10 or later, you can make use of the Windows Subsystem Linux to install various flavours of virtual Linux machines to compile and run
 the code.
