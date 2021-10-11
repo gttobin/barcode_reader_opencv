@@ -16,6 +16,24 @@ to run
 
 ./main barcode1_mbdb.jpg true
 
+or you can use CMake, my CMakeLists.txt is
+
+cmake_minimum_required(VERSION 3.10)
+
+# set the project name
+project(Test)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+#add opencv libs
+include_directories(${DIR}/headers /opt/local/include)
+link_directories (${DIR}/src/utils /opt/local/lib)
+
+ADD_EXECUTABLE(main main.cpp)
+TARGET_LINK_LIBRARIES(main opencv_core opencv_imgproc -lopencv_imgcodecs ${EXTERNAL_LIBS})
+
+
+
 the first parameter is the file path of the jpeg image and the second parameter turns debug output on or off
 
 Ten sample images have been uploaded, of which all are correctly read.
